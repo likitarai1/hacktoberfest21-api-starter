@@ -1,10 +1,12 @@
+const db = require('./../connection');
+
 module.exports = {
   /**
   * 
 
 
   */
-  getContestants: async (options) => {
+  getContestants: async () => {
     // Implement your business logic here...
     //
     // Return all 2xx and 4xx as follows:
@@ -18,24 +20,25 @@ module.exports = {
     // you can throw it as follows:
     //
     // throw new Error('<Error message>'); // this will result in a 500
-
-    var data = [
-        {
-          city: options.city,
-          costumeImgUrl: options.costumeImgUrl,
-          costumeTitle: options.costumeTitle,
-          country: options.country,
-          id: options.id,
-          name: options.name,
-          votes: options.votes,
-        },
-      ],
-      status = '200';
-
-    return {
-      status: status,
-      data: data,
-    };
+    // var data = [];
+    // var status = '';
+    db.query('Select * from contestants', (err, result) => {
+      if (err) {
+        console.log(err);
+        throw new Error('Data not found');
+      } else {
+        var data = result,
+          status = '200';
+        return {
+          status: status,
+          data: data,
+        };
+      }
+    });
+    // return {
+    //   status: status,
+    //   data: data,
+    // };
   },
 
   /**
