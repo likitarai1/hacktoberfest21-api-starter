@@ -1,27 +1,18 @@
 const express = require('express');
 const contestants = require('../services/contestants');
 const router = new express.Router();
+const db = require('./../connection');
 
 router.get('/', async (req, res, next) => {
-  let options = {
-    id: 'qwerty',
-    name: 'Abhinav Asthana',
-    costumeTitle: 'Astronaut',
-    costumeImgUrl:
-      'https://images.unsplash.com/photo-1581822261290-991b38693d1b?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1740&q=80',
-    city: 'San Francisco',
-    country: 'USA',
-    votes: 12,
-  };
-
-  try {
-    const result = await contestants.getContestants(options);
-    res.status(result.status || 200).send(result.data);
-  } catch (err) {
-    return res.status(500).send({
-      error: err || 'Something went wrong.',
-    });
-  }
+  db.query('Select * from contestants', (err, result) => {
+    if (err) {
+      res.status(500).send({
+        error: err || 'Something went wrong.',
+      });
+    } else {
+      res.status(200).send(result);
+    }
+  });
 });
 
 router.post('/', async (req, res, next) => {
