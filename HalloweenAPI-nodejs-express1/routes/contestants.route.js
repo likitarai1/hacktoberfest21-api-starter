@@ -86,33 +86,52 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 router.patch('/:id', async (req, res, next) => {
-  let options = {
-    id: req.params.id,
-  };
-
-  try {
-    const result = await contestants.updateContestant(options);
-    res.status(result.status || 200).send(result.data);
-  } catch (err) {
-    return res.status(500).send({
-      error: err || 'Something went wrong.',
-    });
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).send({ status: 'error', message: 'Provide correct details' });
   }
+  db.query('UPDATE contestants SET ? WHERE id=?', [req.body, req.params.id], (err, result) => {
+    if (err) {
+      res.status(500).send({
+        error: err || 'Something went wrong.',
+      });
+    } else {
+      if (result.affectedRows == 0) {
+        res.status(404).send({ status: 'error', message: 'Contestant not found' });
+      } else {
+        res.status(200).send({ status: 'ok' });
+      }
+    }
+  });
 });
 
 router.patch('/:id/upvote', async (req, res, next) => {
-  let options = {
-    id: req.params.id,
-  };
-
-  try {
-    const result = await contestants.upvoteContestant(options);
-    res.status(result.status || 200).send(result.data);
-  } catch (err) {
-    return res.status(500).send({
-      error: err || 'Something went wrong.',
-    });
-  }
+  const id = req.params.id;
+  db.query('UPDATE contestants SET votes = votes + 1 WHERE id = ?', [id], (err, result) => {
+    if (err) {
+      res.status(500).send({
+        error: err || 'Something went wrong.',
+      });
+    } else {
+      if (result.affectedRows == 0) {
+        res.status(404).send({ status: 'error', message: 'Contestant not found' });
+      } else {
+        db.query('SELECT votes FROM contestants WHERE id=?', [id], (err, result) => {
+          if (err) {
+            res.status(500).send({
+              error: err || 'Something went wrong.',
+            });
+          } else {
+            console.log('votes :: ', result[0].votes);
+            if (result.length == 0) {
+              res.status(404).send({ status: 'error', message: 'Contestant not found' });
+            } else {
+              res.status(200).send({ status: 'ok', votes: result[0].votes });
+            }
+          }
+        });
+      }
+    }
+  });
 });
 
 module.exports = router;
