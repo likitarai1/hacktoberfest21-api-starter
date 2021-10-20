@@ -30,13 +30,6 @@ app.use(upload.array());
 app.use(express.static('public'));
 
 app.use(cookieParser());
-// app.get('/', function (req, res) {
-//   res.status(200).send({
-//     status: 'OK',
-//   });
-//   //   res.status(200).send({ status: 200, msg: 'OK' });
-// });
-// require('./routes/root.route')(app);
 
 const root = require('./routes/root.route');
 app.use('/', root);
