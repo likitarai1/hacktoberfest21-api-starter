@@ -71,18 +71,20 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.delete('/:id', async (req, res, next) => {
-  let options = {
-    id: req.params.id,
-  };
-
-  try {
-    const result = await contestants.deleteContestant(options);
-    res.status(result.status || 200).send(result.data);
-  } catch (err) {
-    return res.status(500).send({
-      error: err || 'Something went wrong.',
-    });
-  }
+  const id = req.params.id;
+  db.query('DELETE FROM contestants WHERE id=?', [id], (err, result) => {
+    if (err) {
+      res.status(500).send({
+        error: err || 'Something went wrong.',
+      });
+    } else {
+      if (result.affectedRows == 0) {
+        res.status(404).send({ status: 'error', message: 'Contestant not found' });
+      } else {
+        res.status(200).send({ status: 'ok' });
+      }
+    }
+  });
 });
 
 router.patch('/:id', async (req, res, next) => {
@@ -121,7 +123,6 @@ router.patch('/:id/upvote', async (req, res, next) => {
               error: err || 'Something went wrong.',
             });
           } else {
-            console.log('votes :: ', result[0].votes);
             if (result.length == 0) {
               res.status(404).send({ status: 'error', message: 'Contestant not found' });
             } else {
