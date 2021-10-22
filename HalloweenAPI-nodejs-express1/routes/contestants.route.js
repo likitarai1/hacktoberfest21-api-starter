@@ -1,5 +1,4 @@
 const express = require('express');
-const contestants = require('../services/contestants');
 const router = new express.Router();
 const db = require('./../connection');
 
